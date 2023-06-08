@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import tkinter as tk
 from tkinter import filedialog
 from tkinter import ttk
@@ -8,13 +10,15 @@ import re
 import subprocess
 import os
 import datetime
+from pathlib import Path
 
 counter=0
 max_counter = 0
 
 checklist = []
 
-download_path = str('D:/Music/new_music')
+#download_path = str('D:/Music/new_music')
+download_path = str(Path.home() / "Downloads")
 
 def get_chapter_info(video_url):
     with youtube_dl.YoutubeDL({}) as ydl:
@@ -29,20 +33,6 @@ def convert_seconds_to_time(seconds):
         time_str += '.000'
     return time_str
     
-#def chop_video_into_chapters(chapters):
-#    for chapter in chapters:
-#        start_time = chapter['start_time']
-#        end_time = chapter.get('end_time')
-#        chapter_title = chapter['title']
-#        output_filename = str(chapter_title) + '.mp3' 
-#        
-#        if end_time:
-#            subprocess.run(['ffmpeg', '-i', 'video.mp4', '-ss', start_time, '-to', end_time, '-vn', '-acodec', 'libmp3lame', output_filename])
-#        else:
-#            subprocess.run(['ffmpeg', '-i', 'video.mp4', '-ss', start_time, '-vn', '-acodec', 'libmp3lame', output_filename])
-
-
-
 
 def chop_video_into_chapters(chapter, video_path):
     video_path = video_path + '.webm'
@@ -153,7 +143,8 @@ def download_video(search_query):
             info_dict = ydl.extract_info(search_query, download=True)
             video_path = ydl.prepare_filename(info_dict)
         
-        chop_video_into_chapters(chapters,video_path)       
+        chop_video_into_chapters(chapters,video_path)
+        os.remove(video_path)       
 
 def start_download():
     global counter
@@ -187,7 +178,7 @@ def start_download():
         flag = True
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=False)
-        chapters = info.get("chapters", [])
+            chapters = info.get("chapters", [])
         # Extract the chapters information from the video info
         ydl_opts = {
             'format': 'bestvideo+bestaudio/best',
